@@ -33,7 +33,7 @@ def encode_q(obj: dict) -> str:
 #need for aircasting's mapstyle endpoints
 
 
-#city --> lat,lon
+#geocoding city --> lat,lon
 def geocode_city(city: str) -> tuple[float, float] | None:
     url = "https://nominatim.openstreetmap.org/search"
     params = {"q": city, "format": "json", "limit": 1}
@@ -47,14 +47,14 @@ def geocode_city(city: str) -> tuple[float, float] | None:
 
 
 def calculate_bounding_box(lat: float, lon: float, radius_km: float = 50) -> tuple:
-    """Calculate bounding box around coordinates"""
-    # Earth radius in km
+    #calculate bounding box around coordinates
+    #earth radius in km
     R = 6371
-    # Convert latitude and longitude to radians
+    # convert latitude and longitude to rads
     lat_rad = math.radians(lat)
     lon_rad = math.radians(lon)
     
-    # Calculate deltas
+    #calculate deltas
     delta_lat = radius_km / R
     delta_lon = radius_km / (R * math.cos(lat_rad))
     
@@ -68,7 +68,6 @@ def calculate_bounding_box(lat: float, lon: float, radius_km: float = 50) -> tup
 
 
 # session discovery
-
 def list_sessions_v3(start_iso: str = None, end_iso: str = None, bbox: tuple = None) -> list:
     #list sessions via /api/v3/sessions, optional filters start_datetime and end_datetime
     params = {}
@@ -139,7 +138,7 @@ def pick_fixed_session_mapstyle(bbox: tuple = None) -> dict | None:
                 r.raise_for_status()
                 sessions = r.json().get("sessions", [])
                 if sessions:
-                    #normalize to dict with id
+                    # Normalize to dict with id
                     s0 = sessions[0]
                     sid = (
                         s0["id"]
@@ -214,7 +213,7 @@ def to_datetime_any(x):
 
 
 def coerce_df(measurements: list) -> pd.DataFrame:
-    """Map common alternate keys to time/value, but keep all columns."""
+    #map common alternate keys to time/value, but keep all columns
     if not measurements:
         return pd.DataFrame()
 
@@ -243,22 +242,21 @@ def coerce_df(measurements: list) -> pd.DataFrame:
 
 
 
-
 def main():
-    #get a city name from user
+    # Get city name from user
     city_name = input("Enter a city name (e.g., 'New York', 'Los Angeles', 'Chicago'): ").strip()
     if not city_name:
         print("No city name entered. Using default search area.")
         bbox = None
     else:
-        #converts city name to coords
+        #get coordinates for the city
         coords = geocode_city(city_name)
         if coords is None:
             print(f"Could not find coordinates for {city_name}. Using default search area.")
             bbox = None
         else:
             lat, lon = coords
-            # Calculate bounding box around the city (50km radius)
+            # calc bounding box around the city (50km radius) default
             bbox = calculate_bounding_box(lat, lon, radius_km=50)
             print(f"Searching around {city_name} (lat: {lat:.4f}, lon: {lon:.4f})")
     
@@ -269,9 +267,9 @@ def main():
         session = pick_fixed_session_mapstyle(bbox=bbox)
         picked_via = session.get("picked_via", "mapstyle") if session else None
 
-    if not session:
+    if not session: #nothing found
         print(
-            f"No sessions found near {city_name if city_name else 'the default area'}. Try widening the time window or adjusting sensor fields."
+            f"No sessions found near {city_name if city_name else 'the default area'}." 
         )
         sys.exit(1)
 
@@ -283,7 +281,7 @@ def main():
         print("No streams found for this session.")
         sys.exit(1)
 
-    #prefers PM2.5 streams first
+    #prefer PM2.5 streams first in the order
     streams_sorted = sorted(
         streams,
         key=lambda s: (
@@ -326,6 +324,4 @@ def main():
     else:
         print("No plottable time/value columns. Check columns:", list(df.columns))
 
-
-#if __name__ == "__main__":
-#    main()
+main()

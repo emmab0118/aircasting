@@ -307,7 +307,7 @@ def main():
     #normalize and save
     df = coerce_df(measurements).dropna(subset=["time"])
     df = df.sort_values("time")
-    out_csv = f"aircasting_fixed_measurements_session{session_id}_stream{stream_id}.csv"
+    out_csv = f"session{session_id}-stream{stream_id}.csv"
     df.to_csv(out_csv, index=False)
     print("Saved:", out_csv, "| rows:", len(df))
 

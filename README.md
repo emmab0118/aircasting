@@ -1,5 +1,5 @@
 # aircasting
-datasci project using data from https://www.habitatmap.org/aircasting
+DataSci/GIS Programming project using data from https://www.habitatmap.org/aircasting.
 
-user provides a city, find and download session data from aircasting map from any devices ~20 km around city
-eventually implement data visualization via ArcGIS dashboard?
+Full program contained within the Jupyter Notebook, the .py file was from experimenting with API pulls.
+User enters a city name (USA), data is sourced from AirCasting monitors from around this area.
